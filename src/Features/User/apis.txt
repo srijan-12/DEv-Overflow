@@ -1,0 +1,4 @@
+/api/user/newuser => registration GET/POST form
+/api/user/login => login GET/POST form
+/api/user/getInfo/:id => GET user info page[auth]
+/api/user/update/:id => GET/POST user info[auth]
