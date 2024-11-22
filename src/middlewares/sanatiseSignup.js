@@ -23,13 +23,10 @@ const sanatiseSignup = (req,res,next) =>{
         if(!gender || !["male", "female", "others"].includes(gender)){
             throw new Error("Invalid gender type");
         }
-        // if(!validator.isURL(photoUrl)){
-        //     throw new Error("Invalid url type");
-        // }
         next();
     }catch(err){
         console.log("err found",err)
-        res.send(err.message);
+        res.status(400).json({"error":err.message})
     }
     
 }

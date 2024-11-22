@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser")
+const cors = require("cors")
 const port = 3000;
 const ConnectToDB = require("./dbConfig.js");
 require('dotenv').config();
@@ -8,6 +9,10 @@ const userRouter = require("./src/Features/User/controller/userController.js")
 const postRouter = require("./src/Features/Posts/controller/postController.js")
 const commentRouter = require("./src/Features/Comments/controller/commentController.js")
 const likeRouter = require("./src/Features/Likes/controller/likeController.js")
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true
+}))
 app.use(express.json())
 app.use(cookieParser());
 app.use("/api/user",userRouter)
