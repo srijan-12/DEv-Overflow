@@ -14,33 +14,57 @@ const getUserId = (token) => {
     }
 };
 
-commentRouter.post("/addcomment/:postId",loginCheck, async(req,res)=>{
-    try{
-        const {content} = req.body
-        const {token} = req.cookies;
+commentRouter.post("/addcomment/:postId", loginCheck, async (req, res) => {
+    try {
+        const { content } = req.body;
+        const { token } = req.cookies;
 
         const user = getUserId(token);
-        if(!user) throw new Error("Login again")
+        if (!user) throw new Error("Login again");
 
-        const {postId} = req.params;
+        const { postId } = req.params;
         const foundPost = await Post.findById(postId);
-        if(!foundPost){ 
-            throw new Error("Invalid request")
+        if (!foundPost) {
+            throw new Error("Invalid request");
         }
-        if(!content || content.length <= 0){
-            throw new Error("Comment is require")
+        if (!content || content.length <= 0) {
+            throw new Error("Comment is required");
         }
-        const newComment = new Comment({postId, userId:user._id, content});
+
+        const newComment = new Comment({ postId, userId: user._id, content });
         await newComment.save();
 
         foundPost.comment.push(newComment._id);
         await foundPost.save();
-        console.log(foundPost);
-        res.send(foundPost)
-    }catch(err){
-        res.status(400).json({"status":"failed to add comment", "error": err.message})
+
+        // Use populate directly on a query
+        const populatedPost = await Post.findById(postId).populate("comment");
+
+        console.log(populatedPost);
+        res.send(populatedPost);
+    } catch (err) {
+        res.status(400).json({ "status": "failed to add comment", "error": err.message });
     }
-})
+});
+
+commentRouter.get("/getallcomments/:postId", loginCheck, async (req, res) => {
+    try {
+        const { token } = req.cookies;
+
+        const user = getUserId(token);
+        if (!user) throw new Error("Login again");
+
+        const { postId } = req.params;
+        const foundPost = await Post.findById(postId);
+        if (!foundPost) {
+            throw new Error("Invalid request");
+        }
+        const populatedPost = await Post.findById(postId).populate("comment");
+        res.status(200).json({"commentArray" : populatedPost.comment});
+    } catch (err) {
+        res.status(400).json({ "status": "failed to add comment", "error": err.message });
+    }
+});
 
 
 
