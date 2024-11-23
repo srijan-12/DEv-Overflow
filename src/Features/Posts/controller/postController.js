@@ -20,7 +20,7 @@ postRouter.post("/createpost",loginCheck,async(req,res)=>{
         await postObj.save();
         res.status(200).json({"status":"created", "post" : postObj})
     }catch(err){
-        res.status(400).json({"status":"failed to create a post"})
+        res.status(400).json({"status":"failed to create a post", "err" : err.message})
     }
 })
 //update post
@@ -32,7 +32,7 @@ postRouter.patch("/updatepost/:id", loginCheck,async(req,res)=>{
         const postUser = await Post.findById(id);
         if(userId._id == postUser.userId) {
             const {title} = req.body;
-             if(!title) throw new Error("Nothing to update");
+             if(!title) throw new Error("title is required");
              const updatedPost = await Post.findByIdAndUpdate(id, {title},{runValidators:true, new:true});
              res.status(200).json({"status":"updated", "result":updatedPost});
         }
@@ -61,9 +61,9 @@ postRouter.get("/getallposts", loginCheck, async(req,res)=>{
     try{
         const allPost = await Post.find({});
         if(allPost.length === 0){
-            return res.status(200).send("nothing to show");
+            return res.status(400).json({"error":"nothing to show"});
         }
-       return res.status(200).send(allPost);
+       return res.status(200).json({"allPost":allPost});
     }catch(err){
         console.log(err);
         res.status(400).json({"status":"failed to delete post", "error": err.message})
